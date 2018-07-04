@@ -41,15 +41,14 @@ void ATankPlayerController::AimTowardsCrosshair()
 
 	if (GetSightRayHitLocation(HitLocation))
 	{
-		// UE_LOG(LogTemp, Warning, TEXT("There is a Hit at poition : %s"), *(HitLocation.ToString()));
+		UE_LOG(LogTemp, Warning, TEXT("There is a Hit at poition : %s"), *(HitLocation.ToString()));
 	}
 }
 
 bool ATankPlayerController::GetSightRayHitLocation(FVector & OutHitLocation) const
 {
 	int32 ViewportSizeX, ViewportSizeY;
-	FVector Start, End;
-	FHitResult AimHit;
+	FVector CameraWorldLocation, CameraWorldDirection;
 
 	// Find the viewport size
 	GetViewportSize(ViewportSizeX, ViewportSizeY);
@@ -59,18 +58,27 @@ bool ATankPlayerController::GetSightRayHitLocation(FVector & OutHitLocation) con
 	DeprojectScreenPositionToWorld(
 		CrosshairXLocation * ViewportSizeX,
 		CrosshairYLocation * ViewportSizeY,
-		Start,
-		End
+		CameraWorldLocation,
+		CameraWorldDirection
 	);
 
 	// Line trace along the direction
-	if(GetWorld()->LineTraceSingleByObjectType(
-		AimHit,
-		Start,
-		End * MaximumRange,
-		FCollisionObjectQueryParams(),
-		FCollisionQueryParams()
-	))
+	return GetAimHitLocation(CameraWorldDirection, OutHitLocation);
+}
+
+bool ATankPlayerController::GetAimHitLocation(FVector AimDirection, FVector & OutHitLocation) const
+{
+	FHitResult AimHit;
+	FVector CameraWorldLocation = PlayerCameraManager->GetCameraLocation();
+	FVector EndLocation = CameraWorldLocation + (AimDirection * LineTraceRange);
+
+	// Line trace along the direction
+	if (GetWorld()->LineTraceSingleByChannel(
+			AimHit,
+			CameraWorldLocation,
+			EndLocation,
+			ECollisionChannel::ECC_Visibility)
+		)
 	{
 		// If we hit something, sets the out location
 		// of the impact point and returns true
@@ -79,6 +87,7 @@ bool ATankPlayerController::GetSightRayHitLocation(FVector & OutHitLocation) con
 	}
 	else
 	{
+		OutHitLocation = FVector(0);
 		return false;
 	}
 }

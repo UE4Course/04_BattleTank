@@ -17,13 +17,13 @@ public:
 	
 private:
 	UPROPERTY(EditAnywhere)
-	float CrosshairXLocation;
+	float CrosshairXLocation = 0.5f;
 
 	UPROPERTY(EditAnywhere)
-	float CrosshairYLocation;
+	float CrosshairYLocation = 0.3333f;
 
 	UPROPERTY(EditAnywhere)
-	float MaximumRange;
+	float LineTraceRange = 1000000.0f;
 
 	virtual void BeginPlay() override;
 
@@ -33,4 +33,5 @@ private:
 
 	bool GetSightRayHitLocation(FVector & OutHitLocation) const;
 
+	bool GetAimHitLocation(FVector AimDirection, FVector & OutHitLocation) const;
 };
