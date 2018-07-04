@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Engine/World.h"
 #include "TankPlayerController.h"
+#include "Engine/World.h"
 
 
 void ATankPlayerController::BeginPlay() {
@@ -41,30 +41,45 @@ void ATankPlayerController::AimTowardsCrosshair()
 
 	if (GetSightRayHitLocation(HitLocation))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("There is a Hit at poition : %s"), *(HitLocation.ToString()));
+		// UE_LOG(LogTemp, Warning, TEXT("There is a Hit at poition : %s"), *(HitLocation.ToString()));
 	}
 }
 
 bool ATankPlayerController::GetSightRayHitLocation(FVector & OutHitLocation) const
 {
+	int32 ViewportSizeX, ViewportSizeY;
+	FVector Start, End;
 	FHitResult AimHit;
-	FVector Start;
-	FVector End;
 
-	DeprojectScreenPositionToWorld(0.5f, 0.33f, Start, End);
+	// Find the viewport size
+	GetViewportSize(ViewportSizeX, ViewportSizeY);
 
-	End = End * 100000;
+	// Find the crosshair position Start
+	// and the direction End
+	DeprojectScreenPositionToWorld(
+		CrosshairXLocation * ViewportSizeX,
+		CrosshairYLocation * ViewportSizeY,
+		Start,
+		End
+	);
 
-	bool HitSomething = GetWorld()->LineTraceSingleByObjectType(
+	// Line trace along the direction
+	if(GetWorld()->LineTraceSingleByObjectType(
 		AimHit,
 		Start,
-		End,
+		End * MaximumRange,
 		FCollisionObjectQueryParams(),
 		FCollisionQueryParams()
-		);
-
-	OutHitLocation = AimHit.ImpactPoint;
-
-	return HitSomething;
+	))
+	{
+		// If we hit something, sets the out location
+		// of the impact point and returns true
+		OutHitLocation = AimHit.ImpactPoint;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 

@@ -7,9 +7,6 @@
 #include "GameFramework/PlayerController.h"
 #include "TankPlayerController.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class BATTLETANK_API ATankPlayerController : public APlayerController
 {
@@ -19,6 +16,15 @@ public:
 	ATank* GetControlledTank() const;
 	
 private:
+	UPROPERTY(EditAnywhere)
+	float CrosshairXLocation;
+
+	UPROPERTY(EditAnywhere)
+	float CrosshairYLocation;
+
+	UPROPERTY(EditAnywhere)
+	float MaximumRange;
+
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaTime) override;
