@@ -8,13 +8,10 @@ void UTankTurret::Rotate(float RelativeSpeed)
 	// Calculate the new elevation for the given frame
 	RelativeSpeed = FMath::Clamp<float>(RelativeSpeed, -1, 1);
 
-	auto AzimuthRotationChange = RelativeSpeed * MaxDegreesPerSecond * GetWorld()->DeltaTimeSeconds;
-	auto RawNewAzimuthRotation = RelativeRotation.Yaw + AzimuthRotationChange;
+	auto RotationChange = RelativeSpeed * MaxDegreesPerSecond * GetWorld()->DeltaTimeSeconds;
+	auto Rotation = RelativeRotation.Yaw + RotationChange;
 
-	// Clamps the elevation to min or max elevation degree
-	//RawNewElevation = FMath::Clamp(RawNewElevation, MinElevationDegree, MaxElevationDegree);
-
-	SetRelativeRotation(FRotator(0, RawNewAzimuthRotation, 0));
+	SetRelativeRotation(FRotator(0, Rotation, 0));
 }
 
 
