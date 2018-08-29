@@ -22,6 +22,9 @@ private:
 	UTankTrack * LeftTrack = nullptr;
 	UTankTrack * RightTrack = nullptr;
 
+	// Called in AI Controller by pathfinding method MoveToActor
+	virtual void RequestDirectMove(const FVector& MoveVelocity, bool bForceMaxSpeed) override;
+
 public:
 	UFUNCTION(BlueprintCallable, Category = Movement)
 	void IntendMoveForward(float Throw);
@@ -31,6 +34,4 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = Setup)
 	void Initialise(UTankTrack* LeftTrackToSet, UTankTrack* RightTrackToSet);
-
-	virtual void RequestDirectMove(const FVector& MoveVelocity, bool bForceMaxSpeed) override;
 };
