@@ -4,7 +4,7 @@
 
 void UTankTrack::SetThrottle(float Throttle)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s throttle at %f"), *GetName(), Throttle);
+	// UE_LOG(LogTemp, Warning, TEXT("%s throttle at %f"), *GetName(), Throttle);
 
 	auto ForceApplied = GetForwardVector() * Throttle * MaxDrivingForce;
 	auto Location = GetComponentLocation();

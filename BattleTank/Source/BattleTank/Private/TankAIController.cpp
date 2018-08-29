@@ -20,6 +20,9 @@ void ATankAIController::Tick(float DeltaTime)
 
 	if (PlayerTank)
 	{
+		// UE_LOG(LogTemp, Warning, TEXT("Move Actor!"));
+		MoveToActor(PlayerTank, AcceptanceRadius);
+
 		// Aim towards the player
 		ControlledTank->AimAt(PlayerTank->GetActorLocation());
 

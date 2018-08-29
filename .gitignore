@@ -9,6 +9,8 @@ BattleTank/.vs/
 # Visual Studio 2015 database file
 BattleTank/*.VC.db
 
+BattleTank/Config/DefaultEditor.ini
+
 # Compiled Object files
 BattleTank/*.slo
 BattleTank/*.lo

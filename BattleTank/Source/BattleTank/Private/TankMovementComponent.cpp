@@ -11,11 +11,25 @@ void UTankMovementComponent::Initialise(UTankTrack* LeftTrackToSet, UTankTrack* 
 	RightTrack = RightTrackToSet;
 }
 
+void UTankMovementComponent::RequestDirectMove(const FVector & MoveVelocity, bool bForceMaxSpeed)
+{
+	// UE_LOG(LogTemp, Warning, TEXT("%s requesting direct move : %s"), *GetOwner()->GetName(), *MoveVelocity.ToString());
+
+	auto TankForward = GetOwner()->GetActorForwardVector().GetSafeNormal();
+	auto AIForwardIntention = MoveVelocity.GetSafeNormal();
+
+	float ForwardThrow = FVector::DotProduct(TankForward, AIForwardIntention);
+	IntendMoveForward(ForwardThrow);
+
+	auto TurnThrow = FVector::CrossProduct(TankForward, AIForwardIntention).Z;
+	IntendTurnRight(TurnThrow);
+}
+
 void UTankMovementComponent::IntendMoveForward(float Throw)
 {
-	//auto Time = GetWorld()->GetTimeSeconds();
-	UE_LOG(LogTemp, Warning, TEXT("Intend to move forward throw : %f"), Throw);
+	if (!LeftTrack || !RightTrack) { return; }
 
+	// UE_LOG(LogTemp, Warning, TEXT("%s throttle forward : %f"), *GetOwner()->GetName(), Throw);
 	LeftTrack->SetThrottle(Throw);
 	RightTrack->SetThrottle(Throw);
 
@@ -23,3 +37,14 @@ void UTankMovementComponent::IntendMoveForward(float Throw)
 	// TODO limit backward scale speed to -0.5
 }
 
+void UTankMovementComponent::IntendTurnRight(float Throw)
+{
+	if (!LeftTrack || !RightTrack) { return; }
+
+	// UE_LOG(LogTemp, Warning, TEXT("Throttle right : %f"), Throw);
+	LeftTrack->SetThrottle(Throw);
+	RightTrack->SetThrottle(-Throw);
+
+	// TODO prevent double speed due to shoulder control
+	// TODO limit backward scale speed to -0.5
+}
