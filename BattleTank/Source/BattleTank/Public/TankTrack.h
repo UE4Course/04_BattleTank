@@ -19,6 +19,11 @@ public:
 	void SetThrottle(float Throttle);
 
 private:
+	// Constructor
+	UTankTrack();
+
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
+
 	// Max Force apply to one track in Newtons
 	UPROPERTY(EditDefaultsOnly)
 	float MaxDrivingForce = 300000;

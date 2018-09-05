@@ -7,15 +7,48 @@
 #include "TankBarrel.h"
 #include "TankTurret.h"
 #include "Projectile.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values for this component's properties
 UTankAimingComponent::UTankAimingComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 
 	// ...
+}
+
+void UTankAimingComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	LastFireTime = FPlatformTime::Seconds();
+}
+
+void UTankAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+{
+	FVector Location = Barrel->GetComponentToWorld().GetLocation();
+	DrawDebugLine(GetWorld(), Location, Location + Barrel->GetForwardVector() * 1000.f, FColor::Red);
+	DrawDebugLine(GetWorld(), Location, Location + AimDirection * 1000.f, FColor::Green);
+
+	if ((FPlatformTime::Seconds() - LastFireTime) < ReloadTimeSeconds)
+	{
+		FiringStatus = EFiringStatus::Reloading;
+	}
+	else if (IsBarrelMoving())
+	{
+		FiringStatus = EFiringStatus::Aiming;
+	}
+	else
+	{
+		FiringStatus = EFiringStatus::Locked;
+	}
+}
+
+bool UTankAimingComponent::IsBarrelMoving()
+{
+	if (!ensure(Barrel)) { return false; }
+	return !AimDirection.Equals(Barrel->GetForwardVector(), 0.01f);
 }
 
 void UTankAimingComponent::Initialise(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet)
@@ -48,7 +81,7 @@ void UTankAimingComponent::AimAt(FVector HitLocation)
 
 	if (bHaveAimSolution)
 	{
-		FVector AimDirection = OutLaunchVelocity.GetSafeNormal();
+		AimDirection = OutLaunchVelocity.GetSafeNormal();
 		MoveBarrelTowards(AimDirection);
 		auto Time = GetWorld()->GetTimeSeconds();
 		//UE_LOG(LogTemp, Warning, TEXT("%f : Aiming at %s"), Time, *(AimDirection.ToString()));
@@ -79,7 +112,7 @@ void UTankAimingComponent::Fire()
 	if (!ensure(Barrel && ProjectileBlueprint)) { return; }
 	bool IsReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeSeconds;
 
-	if (IsReloaded)
+	if (FiringStatus != EFiringStatus::Reloading)
 	{
 		auto Location = Barrel->GetSocketLocation(FName("Projectile"));
 		auto Rotation = Barrel->GetForwardVector().Rotation();

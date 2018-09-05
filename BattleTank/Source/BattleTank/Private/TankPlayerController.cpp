@@ -24,7 +24,7 @@ void ATankPlayerController::Tick(float DeltaTime)
 
 void ATankPlayerController::AimTowardsCrosshair()
 {
-	if (!ensure(GetPawn())) { return; }
+	if (!GetPawn()) { return; }
 
 	// Ray Cast from crosshair
 	FVector HitLocation;

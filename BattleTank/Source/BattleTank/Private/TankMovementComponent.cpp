@@ -22,7 +22,7 @@ void UTankMovementComponent::RequestDirectMove(const FVector & MoveVelocity, boo
 	auto TurnThrow = FVector::CrossProduct(TankForward, AIForwardIntention).Z;
 	IntendTurnRight(TurnThrow);
 
-	UE_LOG(LogTemp, Warning, TEXT("%s : Forward = %f, Right = %f"), *GetOwner()->GetName(), ForwardThrow, TurnThrow);
+	// UE_LOG(LogTemp, Warning, TEXT("%s : Forward = %f, Right = %f"), *GetOwner()->GetName(), ForwardThrow, TurnThrow);
 }
 
 void UTankMovementComponent::IntendMoveForward(float Throw)

@@ -29,6 +29,10 @@ public:
 	// Sets default values for this pawn's properties
 	UTankAimingComponent();
 
+	virtual void BeginPlay() override;
+
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
+
 	UFUNCTION(BlueprintCallable, Category = "Setup")
 	void Initialise(UTankBarrel* TankBarrelToSet, UTankTurret* TankBarrelTurret);
 
@@ -45,7 +49,6 @@ public:
 	void SetTurretReference(UTankTurret* TurretToSet);
 
 protected:
-
 	UPROPERTY(BlueprintReadOnly, Category = "State")
 	EFiringStatus FiringStatus = EFiringStatus::Reloading;
 
@@ -60,6 +63,10 @@ private:
 	float ReloadTimeSeconds = 3.0f;
 
 	double LastFireTime = 0;
+
+	FVector AimDirection;
+
+	bool IsBarrelMoving();
 
 	void MoveBarrelTowards(FVector AimDirection);
 };
