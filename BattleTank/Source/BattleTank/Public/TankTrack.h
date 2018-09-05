@@ -22,7 +22,16 @@ private:
 	// Constructor
 	UTankTrack();
 
-	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
+	virtual void BeginPlay() override;
+
+	void ApplySidewaysForce();
+
+	float CurrentThrottle = 0;
+
+	void DriveTrack();
+
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 
 	// Max Force apply to one track in Newtons
 	UPROPERTY(EditDefaultsOnly)
