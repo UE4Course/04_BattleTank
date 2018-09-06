@@ -93,6 +93,11 @@ void UTankAimingComponent::AimAt(FVector HitLocation)
 	}
 }
 
+EFiringStatus UTankAimingComponent::GetFiringStatus() const
+{
+	return FiringStatus;
+}
+
 void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 {
 	// Calculate difference between current barrel rotation and Aim Direction
@@ -102,9 +107,6 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 
 	// Rotate Turret
 	float Yaw = DeltaRotator.Yaw;
-	float nYaw = -DeltaRotator.Yaw;
-
-	UE_LOG(LogTemp, Warning, TEXT("%f and %f"), Yaw, nYaw);
 
 	// Make sure barrel takes the shortest route
 	if (FMath::Abs(Yaw) > 180)

@@ -48,6 +48,8 @@ public:
 
 	void SetTurretReference(UTankTurret* TurretToSet);
 
+	EFiringStatus GetFiringStatus() const;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "State")
 	EFiringStatus FiringStatus = EFiringStatus::Reloading;
