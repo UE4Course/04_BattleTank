@@ -7,7 +7,6 @@
 #include "Projectile.generated.h"
 
 class UProjectileMovementComponent;
-class UParticleSystemComponent;
 
 UCLASS()
 class BATTLETANK_API AProjectile : public AActor

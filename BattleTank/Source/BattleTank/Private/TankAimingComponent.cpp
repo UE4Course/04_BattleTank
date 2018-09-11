@@ -31,7 +31,7 @@ void UTankAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickTy
 	DrawDebugLine(GetWorld(), Location, Location + Barrel->GetForwardVector() * 1000.f, FColor::Red);
 	DrawDebugLine(GetWorld(), Location, Location + AimDirection * 1000.f, FColor::Green);
 
-	if (CurrentAmmoCount <= 0)
+	if (AmmoCount <= 0)
 	{
 		FiringStatus = EFiringStatus::OutOfAmmo;
 	}
@@ -102,9 +102,9 @@ EFiringStatus UTankAimingComponent::GetFiringStatus() const
 	return FiringStatus;
 }
 
-uint8 UTankAimingComponent::GetCurrentAmmoCount() const
+int32 UTankAimingComponent::GetAmmoCount() const
 {
-	return CurrentAmmoCount;
+	return AmmoCount;
 }
 
 void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
@@ -146,7 +146,7 @@ void UTankAimingComponent::Fire()
 
 		Projectile->Launch(LaunchSpeed);
 
-		CurrentAmmoCount--; // Decrease number of ammo
+		AmmoCount--; // Decrease number of ammo
 
 		LastFireTime = FPlatformTime::Seconds();
 	}
