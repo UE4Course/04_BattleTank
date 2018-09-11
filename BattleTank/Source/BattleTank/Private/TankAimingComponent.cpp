@@ -31,7 +31,11 @@ void UTankAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickTy
 	DrawDebugLine(GetWorld(), Location, Location + Barrel->GetForwardVector() * 1000.f, FColor::Red);
 	DrawDebugLine(GetWorld(), Location, Location + AimDirection * 1000.f, FColor::Green);
 
-	if ((FPlatformTime::Seconds() - LastFireTime) < ReloadTimeSeconds)
+	if (CurrentAmmoCount <= 0)
+	{
+		FiringStatus = EFiringStatus::OutOfAmmo;
+	}
+	else if ((FPlatformTime::Seconds() - LastFireTime) < ReloadTimeSeconds)
 	{
 		FiringStatus = EFiringStatus::Reloading;
 	}
@@ -98,6 +102,11 @@ EFiringStatus UTankAimingComponent::GetFiringStatus() const
 	return FiringStatus;
 }
 
+uint8 UTankAimingComponent::GetCurrentAmmoCount() const
+{
+	return CurrentAmmoCount;
+}
+
 void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 {
 	// Calculate difference between current barrel rotation and Aim Direction
@@ -106,14 +115,15 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 	FRotator DeltaRotator = AimAsRotator - BarrelRotation;
 
 	// Rotate Turret
-	float Yaw = DeltaRotator.Yaw;
-
 	// Make sure barrel takes the shortest route
-	if (FMath::Abs(Yaw) > 180)
+	if (FMath::Abs(DeltaRotator.Yaw) < 180)
 	{
-		Yaw = Yaw < 0 ? 360 + DeltaRotator.Yaw : 360 - DeltaRotator.Yaw;
+		Turret->Rotate(DeltaRotator.Yaw);
 	}
-	Turret->Rotate(Yaw);
+	else
+	{
+		Turret->Rotate(-DeltaRotator.Yaw);
+	}
 
 	// Elevate the Barrel
 	Barrel->Elevate(DeltaRotator.Pitch);
@@ -122,9 +132,8 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 void UTankAimingComponent::Fire()
 {
 	if (!ensure(Barrel && ProjectileBlueprint)) { return; }
-	bool IsReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeSeconds;
 
-	if (FiringStatus != EFiringStatus::Reloading)
+	if (FiringStatus == EFiringStatus::Locked || FiringStatus == EFiringStatus::Aiming)
 	{
 		auto Location = Barrel->GetSocketLocation(FName("Projectile"));
 		auto Rotation = Barrel->GetForwardVector().Rotation();
@@ -136,6 +145,8 @@ void UTankAimingComponent::Fire()
 			);
 
 		Projectile->Launch(LaunchSpeed);
+
+		CurrentAmmoCount--; // Decrease number of ammo
 
 		LastFireTime = FPlatformTime::Seconds();
 	}
