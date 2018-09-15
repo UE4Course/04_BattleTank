@@ -29,6 +29,8 @@ private:
 
 	virtual void BeginPlay() override;
 
+	virtual void SetPawn(APawn* InPawn) override;
+
 	virtual void Tick(float DeltaTime) override;
 
 	void AimTowardsCrosshair();
@@ -36,4 +38,7 @@ private:
 	bool GetSightRayHitLocation(FVector & OutHitLocation) const;
 
 	bool GetAimHitLocation(FVector AimDirection, FVector & OutHitLocation) const;
+
+	UFUNCTION()
+	void OnTankDeath();
 };
