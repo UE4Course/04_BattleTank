@@ -39,7 +39,8 @@ void ATankPlayerController::SetPawn(APawn* InPawn)
 
 void ATankPlayerController::OnTankDeath()
 {
-	UE_LOG(LogTemp, Warning, TEXT("My Tank Died!"));
+	UE_LOG(LogTemp, Warning, TEXT("Player Tank Died!"));
+	StartSpectatingOnly();
 }
 
 void ATankPlayerController::AimTowardsCrosshair()
@@ -90,7 +91,7 @@ bool ATankPlayerController::GetAimHitLocation(FVector AimDirection, FVector & Ou
 			AimHit,
 			CameraWorldLocation,
 			EndLocation,
-			ECollisionChannel::ECC_Visibility)
+			ECollisionChannel::ECC_Camera)
 		)
 	{
 		// If we hit something, sets the out location
