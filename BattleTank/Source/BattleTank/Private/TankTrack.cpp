@@ -2,57 +2,54 @@
 
 #include "TankTrack.h"
 #include "Engine/World.h"
-#include "DrawDebugHelpers.h"
+#include "SprungWheel.h"
+#include "SpawningComponent.h"
 
 UTankTrack::UTankTrack()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UTankTrack::BeginPlay()
-{
-	Super::BeginPlay();
-	OnComponentHit.AddDynamic(this, &UTankTrack::OnHit);
-}
-
-void UTankTrack::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
-{
-	DriveTrack();
-	ApplySidewaysForce();
-	CurrentThrottle = 0;
-}
-
-void UTankTrack::ApplySidewaysForce()
-{
-	// Calculate slippage speed
-	auto SlippageSpeed = FVector::DotProduct(GetRightVector(), GetComponentVelocity());
-
-	// Workout the acceleration for this frame
-	auto DeltaTime = GetWorld()->GetDeltaSeconds();
-	auto CorrectionAcceleration = -(SlippageSpeed / DeltaTime * GetRightVector());
-
-	// Calculate and apply opposing force to the tank to prevent slipping
-	auto TankRoot = Cast<UStaticMeshComponent>(GetOwner()->GetRootComponent());
-	auto CorrectionForce = (TankRoot->GetMass() * CorrectionAcceleration) / 2;
-
-	TankRoot->AddForce(CorrectionForce);
-}
-
 void UTankTrack::SetThrottle(float Throttle)
 {
-	CurrentThrottle = FMath::Clamp<float>(CurrentThrottle + Throttle, -1, 1);
+	float CurrentThrottle = FMath::Clamp<float>(Throttle, -1, 1);
+	DriveTrack(CurrentThrottle);
 }
 
-void UTankTrack::DriveTrack()
+void UTankTrack::DriveTrack(float CurrentThrottle)
 {
-	auto ForceApplied = GetForwardVector() * CurrentThrottle * MaxDrivingForce;
-	auto Location = GetComponentLocation();
-	auto TankRoot = Cast<UPrimitiveComponent>(GetOwner()->GetRootComponent());
+	auto ForceApplied = CurrentThrottle * MaxDrivingForce;
+	auto Wheels = GetWheels();
+	auto ForcePerWheel = ForceApplied / Wheels.Num();
 
-	TankRoot->AddForceAtLocation(ForceApplied, Location);
+	// Apply force on each wheel
+	for (ASprungWheel* Wheel : Wheels)
+	{
+		Wheel->AddDrivingForce(ForcePerWheel);
+	}
+}
 
-	// Draw debug line for the direction of force applied
-	DrawDebugLine(GetWorld(), Location, Location + TankRoot->GetForwardVector() * 1000.f, FColor::Yellow);
+TArray<class ASprungWheel *> UTankTrack::GetWheels() const
+{
+	TArray<class USceneComponent*> Children;
+	TArray<class ASprungWheel*> Wheels;
+	
+	GetChildrenComponents(true, Children);
+
+	for (USceneComponent* Child : Children)
+	{
+		USpawningComponent* SpawningComp = Cast<USpawningComponent>(Child);
+
+		if (!SpawningComp) { continue; }
+
+		ASprungWheel* Wheel = Cast<ASprungWheel>(SpawningComp->GetSpawnedActor());
+
+		if (!Wheel) { continue; }
+
+		Wheels.Add(Wheel);
+	}
+
+	return Wheels;
 }
 
 

@@ -10,6 +10,7 @@ void ATankPlayerController::BeginPlay() {
 	Super::BeginPlay();
 
 	PrimaryActorTick.bCanEverTick = true;
+	if (!GetPawn()) { return; }
 
 	auto AimingComponent = GetPawn()->FindComponentByClass<UTankAimingComponent>();
 	if (!ensure(AimingComponent)) { return; }

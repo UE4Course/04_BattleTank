@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Projectile.generated.h"
 
+// Forward Declarations
 class UProjectileMovementComponent;
 class URadialForceComponent;
 
